@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'add_course.dart';
 import 'course_view.dart';
-import 'database_helper.dart'; // Import your DatabaseHelper class
+import 'database_helper.dart';
 import 'model/disc_golf_course.dart';
 import 'theme_data.dart';
 
@@ -17,7 +17,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   final DatabaseHelper databaseHelper;
 
-  const MyApp({super.key, required this.databaseHelper});
+  const MyApp({Key? key, required this.databaseHelper}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,8 @@ class MyApp extends StatelessWidget {
 class DiscGolfHomePage extends StatefulWidget {
   final DatabaseHelper databaseHelper;
 
-  const DiscGolfHomePage({super.key, required this.databaseHelper});
+  const DiscGolfHomePage({Key? key, required this.databaseHelper})
+      : super(key: key);
 
   @override
   DiscGolfHomePageState createState() => DiscGolfHomePageState();
@@ -61,7 +62,7 @@ class DiscGolfHomePageState extends State<DiscGolfHomePage> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.all(18.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -73,7 +74,7 @@ class DiscGolfHomePageState extends State<DiscGolfHomePage> {
                 hintStyle: const TextStyle(color: Colors.deepOrange),
                 labelStyle: const TextStyle(color: Colors.deepOrange),
                 prefixIcon: IconButton(
-                  icon: const Icon(Icons.search), // Save icon
+                  icon: const Icon(Icons.search),
                   onPressed: () {
                     searchCourses();
                   },
@@ -91,48 +92,77 @@ class DiscGolfHomePageState extends State<DiscGolfHomePage> {
               ),
             ),
             const SizedBox(height: 25),
-            FutureBuilder<List<DiscGolfCourse>>(
-              future: widget.databaseHelper.getCourses(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Text('No courses found.');
-                } else {
-                  List<DiscGolfCourse> courses = snapshot.data!;
-                  return Column(
-                    children: courses.map((course) {
-                      return ListTile(
-                        title: GestureDetector(
-                          onTap: () {
-                            navigateToCourseView(context, course);
-                          },
-                          child: Text(
-                            course.name,
-                            style: const TextStyle(
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.deepOrange,
+            Expanded(
+              child: FutureBuilder<List<DiscGolfCourse>>(
+                future: widget.databaseHelper.getCourses(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('No courses found.');
+                  } else {
+                    List<DiscGolfCourse> courses = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: courses.length,
+                      itemBuilder: (context, index) {
+                        DiscGolfCourse course = courses[index];
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                            color: Colors.blueGrey,
+                            border: Border.all(width: 1),
+                          ),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: Colors.white,
+                              child: Text((index + 1).toString(),
+                                  style: const TextStyle(
+                                      color: Colors.blueGrey,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                            title: GestureDetector(
+                              onTap: () {
+                                navigateToCourseView(context, course);
+                              },
+                              child: Text(
+                                course.name,
+                                style: const TextStyle(
+                                  fontSize: 22.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            trailing: const Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  );
-                }
-              },
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.deepOrange,
-        foregroundColor: Colors.white,
+        elevation: 0,
+        backgroundColor: Colors.blueGrey,
+        // foregroundColor: Colors.white,
         onPressed: addNewCourse,
         tooltip: 'Lägg till bana',
-        child: const Icon(Icons.add),
+        shape: RoundedRectangleBorder(
+            side: const BorderSide(width: 1, color: Colors.black),
+            borderRadius: BorderRadius.circular(10)),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
