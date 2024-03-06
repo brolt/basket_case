@@ -118,6 +118,9 @@ class DiscGolfHomePageState extends State<DiscGolfHomePage> {
                             border: Border.all(width: 1),
                           ),
                           child: ListTile(
+                            onTap: () {
+                              navigateToCourseView(context, course);
+                            },
                             leading: CircleAvatar(
                               backgroundColor: Colors.white,
                               child: Text((index + 1).toString(),
@@ -125,17 +128,12 @@ class DiscGolfHomePageState extends State<DiscGolfHomePage> {
                                       color: Colors.blueGrey,
                                       fontWeight: FontWeight.bold)),
                             ),
-                            title: GestureDetector(
-                              onTap: () {
-                                navigateToCourseView(context, course);
-                              },
-                              child: Text(
-                                course.name,
-                                style: const TextStyle(
-                                  fontSize: 22.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                            title: Text(
+                              course.name,
+                              style: const TextStyle(
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                             ),
                             trailing: const Icon(

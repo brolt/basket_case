@@ -86,7 +86,7 @@ class AddCourseState extends State<AddCourse> {
             TextField(
               controller: courseNameController,
               decoration: InputDecoration(
-                labelText: 'Course Name',
+                labelText: 'Banans namn',
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.save), // Save icon
                   onPressed: () {

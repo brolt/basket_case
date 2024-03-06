@@ -113,7 +113,7 @@ class CourseViewState extends State<CourseView> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.all(18.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -126,29 +126,62 @@ class CourseViewState extends State<CourseView> {
                   basket.latitude,
                   basket.longitude,
                 );
-                return Text(
-                  'Hole ${basket.basketNumber}: ${distance.round()} meters',
-                  style: const TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepOrange,
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    color: Colors.blueGrey,
+                    border: Border.all(width: 1),
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: Text(
+                        '${basket.basketNumber}',
+                        style: const TextStyle(
+                          color: Colors.deepOrange,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      '${distance.round()} meter',
+                      style: const TextStyle(
+                        fontSize: 22.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onTap: () {
+                      // Handle onTap for the basket
+                    },
+                    trailing: const Icon(
+                      Icons.flag,
+                      color: Colors.white,
+                    ),
                   ),
                 );
               }).toList(),
             ),
             const SizedBox(height: 25),
-            IconButton(
-              iconSize: 100,
-              icon: const Icon(Icons.update),
-              color: Colors.green,
-              onPressed: () {
-                getLocation();
-              },
+            Center(
+              child: IconButton(
+                alignment: Alignment.center,
+                iconSize: 100,
+                icon: const Icon(Icons.update),
+                color: Colors.blueGrey,
+                onPressed: () {
+                  getLocation();
+                },
+              ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        elevation: 0,
+        backgroundColor: Colors.blueGrey,
         onPressed: () {
           Navigator.push(
             context,
@@ -160,7 +193,10 @@ class CourseViewState extends State<CourseView> {
             ),
           );
         },
-        child: const Icon(Icons.add),
+        shape: RoundedRectangleBorder(
+            side: const BorderSide(width: 1, color: Colors.black),
+            borderRadius: BorderRadius.circular(10)),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
