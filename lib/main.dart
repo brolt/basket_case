@@ -17,7 +17,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   final DatabaseHelper databaseHelper;
 
-  const MyApp({Key? key, required this.databaseHelper}) : super(key: key);
+  const MyApp({super.key, required this.databaseHelper});
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +32,7 @@ class MyApp extends StatelessWidget {
 class DiscGolfHomePage extends StatefulWidget {
   final DatabaseHelper databaseHelper;
 
-  const DiscGolfHomePage({Key? key, required this.databaseHelper})
-      : super(key: key);
+  const DiscGolfHomePage({super.key, required this.databaseHelper});
 
   @override
   DiscGolfHomePageState createState() => DiscGolfHomePageState();

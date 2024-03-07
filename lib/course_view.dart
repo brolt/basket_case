@@ -60,6 +60,7 @@ class CourseViewState extends State<CourseView> {
         currentPosition = position;
       });
     } catch (e) {
+      // ignore: avoid_print
       print("Error getting location: $e");
     }
   }
@@ -93,6 +94,7 @@ class CourseViewState extends State<CourseView> {
       closestBaskets = baskets.take(5).toList();
 
       setState(() {}); // Update the UI with the closest baskets
+      // ignore: empty_catches
     } catch (e) {}
   }
 
@@ -145,12 +147,14 @@ class CourseViewState extends State<CourseView> {
                         ),
                       ),
                     ),
-                    title: Text(
-                      '${distance.round()} meter',
-                      style: const TextStyle(
-                        fontSize: 22.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    title: Center(
+                      child: Text(
+                        '${distance.round()} meter',
+                        style: const TextStyle(
+                          fontSize: 22.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     onTap: () {

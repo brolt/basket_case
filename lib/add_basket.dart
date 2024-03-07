@@ -1,7 +1,9 @@
 // add_basket.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'database_helper.dart';
 import 'location_helper.dart';
@@ -22,6 +24,9 @@ class AddBasket extends StatefulWidget {
 }
 
 class AddBasketState extends State<AddBasket> {
+  final mapController = MapController();
+  Marker basketMarker =
+      const Marker(point: LatLng(0, 0), child: Icon(Icons.flag));
   int selectedHole = 1;
   Position currentPosition = Position(
     longitude: 0,
@@ -54,6 +59,10 @@ class AddBasketState extends State<AddBasket> {
 
       setState(() {
         currentPosition = position;
+        LatLng latLng =
+            LatLng(currentPosition.latitude, currentPosition.longitude);
+        basketMarker = Marker(point: latLng, child: const Icon(Icons.flag));
+        mapController.move(latLng, 19);
       });
     } catch (e) {}
   }
@@ -131,29 +140,44 @@ class AddBasketState extends State<AddBasket> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DropdownButton<int>(
-              value: selectedHole,
-              items: List.generate(18, (index) => index + 1)
-                  .map((value) => DropdownMenuItem<int>(
-                        value: value,
-                        child: Text(
-                          'Hole $value',
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedHole = value!;
-                });
-              },
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color:
+                    Colors.blueGrey, // Background color of the dropdown button
+                border: Border.all(
+                    color: Colors.black,
+                    width: 1), // Border of the dropdown button
+                borderRadius: BorderRadius.circular(
+                    10), // Border radius of the dropdown button
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: DropdownButton<int>(
+                  value: selectedHole,
+                  items: List.generate(18, (index) => index + 1)
+                      .map((value) => DropdownMenuItem<int>(
+                            value: value,
+                            child: Text('Hål $value'),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedHole = value!;
+                    });
+                  },
+                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                  underline: Container(),
+                  dropdownColor: Colors.blueGrey, // Dropdown background color
+                  style: const TextStyle(
+                    color: Colors.white, // Font color
+                    fontSize: 16, // Font size on dropdown button
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 16.0),
             const Text(
-              'Coordinates:',
+              'Koordinater:',
               style: TextStyle(
                 fontSize: 16.0,
                 color: Colors.black,
@@ -162,7 +186,7 @@ class AddBasketState extends State<AddBasket> {
             Row(
               children: [
                 const Text(
-                  'Latitude:',
+                  'Lattitud:',
                   style: TextStyle(
                     fontSize: 16.0,
                     color: Colors.black,
@@ -178,7 +202,7 @@ class AddBasketState extends State<AddBasket> {
                 ),
                 const SizedBox(width: 16.0),
                 const Text(
-                  'Longitude:',
+                  'Longitud:',
                   style: TextStyle(
                     fontSize: 16.0,
                     color: Colors.black,
@@ -199,8 +223,16 @@ class AddBasketState extends State<AddBasket> {
               onPressed: () async {
                 await getLocation();
               },
+              style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blueGrey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Rounded corners
+                    side: const BorderSide(color: Colors.black), // Border color
+                  )),
               child: const Text(
-                'Get Current Position',
+                'Hämta ny position',
                 style: TextStyle(
                   fontSize: 16.0,
                   color: Colors.white,
@@ -211,12 +243,48 @@ class AddBasketState extends State<AddBasket> {
               onPressed: () {
                 saveBasket();
               },
+              style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blueGrey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(10.0), // Rounded corners
+                    side: const BorderSide(color: Colors.black), // Border color
+                  )),
               child: const Text(
-                'Save Basket',
+                'Spara korg',
                 style: TextStyle(
                   fontSize: 16.0,
                   color: Colors.white,
                 ),
+              ),
+            ),
+            SizedBox(
+              height: 300,
+              child: FlutterMap(
+                mapController: mapController,
+                options: const MapOptions(
+                  initialCenter: LatLng(59.293944788014024, 14.094192662444502),
+                  initialZoom: 14,
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.example.app',
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      basketMarker,
+                    ],
+                  ),
+                  RichAttributionWidget(
+                    attributions: [
+                      TextSourceAttribution('OpenStreetMap contributors',
+                          onTap: () {}),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
