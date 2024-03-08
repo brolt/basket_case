@@ -102,7 +102,7 @@ class CourseViewState extends State<CourseView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Colors.deepOrangeAccent,
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),

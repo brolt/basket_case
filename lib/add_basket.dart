@@ -61,7 +61,9 @@ class AddBasketState extends State<AddBasket> {
         currentPosition = position;
         LatLng latLng =
             LatLng(currentPosition.latitude, currentPosition.longitude);
-        basketMarker = Marker(point: latLng, child: const Icon(Icons.flag));
+        basketMarker = Marker(
+            point: latLng,
+            child: const Icon(Icons.adjust, color: Colors.blueGrey));
         mapController.move(latLng, 19);
       });
     } catch (e) {}
@@ -135,159 +137,186 @@ class AddBasketState extends State<AddBasket> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color:
-                    Colors.blueGrey, // Background color of the dropdown button
-                border: Border.all(
-                    color: Colors.black,
-                    width: 1), // Border of the dropdown button
-                borderRadius: BorderRadius.circular(
-                    10), // Border radius of the dropdown button
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: DropdownButton<int>(
-                  value: selectedHole,
-                  items: List.generate(18, (index) => index + 1)
-                      .map((value) => DropdownMenuItem<int>(
-                            value: value,
-                            child: Text('Hål $value'),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedHole = value!;
-                    });
-                  },
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                  underline: Container(),
-                  dropdownColor: Colors.blueGrey, // Dropdown background color
-                  style: const TextStyle(
-                    color: Colors.white, // Font color
-                    fontSize: 16, // Font size on dropdown button
+      body: Expanded(
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors
+                      .blueGrey, // Background color of the dropdown button
+                  border: Border.all(color: Colors.black, width: 1),
+                  // Border of the dropdown button
+                  borderRadius: BorderRadius.circular(10),
+                  // Border radius of the dropdown button
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: SizedBox(
+                    height: 56,
+                    child: ListWheelScrollView(
+                      itemExtent: 50,
+                      // Adjust the item extent as needed
+                      children: List.generate(
+                        18,
+                        (index) => Center(
+                          child: Text(
+                            'Hål ${index + 1}',
+                          ),
+                        ),
+                      ),
+                      onSelectedItemChanged: (index) {
+                        setState(() {
+                          selectedHole = index + 1;
+                        });
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            const Text(
-              'Koordinater:',
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.black,
-              ),
-            ),
-            Row(
-              children: [
-                const Text(
-                  'Lattitud:',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(width: 8.0),
-                Text(
-                  currentPosition.latitude.toString(),
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(width: 16.0),
-                const Text(
-                  'Longitud:',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(width: 8.0),
-                Text(
-                  currentPosition.longitude.toString(),
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () async {
-                await getLocation();
-              },
-              style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.blueGrey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(10.0), // Rounded corners
-                    side: const BorderSide(color: Colors.black), // Border color
-                  )),
-              child: const Text(
-                'Hämta ny position',
+              const SizedBox(height: 16.0),
+              const Text(
+                'Koordinater:',
                 style: TextStyle(
                   fontSize: 16.0,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                saveBasket();
-              },
-              style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.blueGrey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(10.0), // Rounded corners
-                    side: const BorderSide(color: Colors.black), // Border color
-                  )),
-              child: const Text(
-                'Spara korg',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 300,
-              child: FlutterMap(
-                mapController: mapController,
-                options: const MapOptions(
-                  initialCenter: LatLng(59.293944788014024, 14.094192662444502),
-                  initialZoom: 14,
-                ),
+              Row(
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'com.example.app',
+                  const Text(
+                    'Lattitud:',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                    ),
                   ),
-                  MarkerLayer(
-                    markers: [
-                      basketMarker,
-                    ],
+                  const SizedBox(width: 8.0),
+                  Text(
+                    currentPosition.latitude.toString(),
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                    ),
                   ),
-                  RichAttributionWidget(
-                    attributions: [
-                      TextSourceAttribution('OpenStreetMap contributors',
-                          onTap: () {}),
-                    ],
+                  const SizedBox(width: 16.0),
+                  const Text(
+                    'Longitud:',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  Text(
+                    currentPosition.longitude.toString(),
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.black,
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 16.0),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                height: 300,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: FlutterMap(
+                    mapController: mapController,
+                    options: const MapOptions(
+                      initialCenter:
+                          LatLng(59.293944788014024, 14.094192662444502),
+                      initialZoom: 14,
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate:
+                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.example.app',
+                      ),
+                      MarkerLayer(
+                        markers: [
+                          basketMarker,
+                        ],
+                      ),
+                      RichAttributionWidget(
+                        attributions: [
+                          TextSourceAttribution('OpenStreetMap contributors',
+                              onTap: () {}),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12.0),
+
+              // Add the Row widget to contain the buttons
+              Row(
+                children: [
+                  // First Button
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await getLocation();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(100, 56),
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blueGrey[400],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          side: const BorderSide(color: Colors.black),
+                        ),
+                      ),
+                      child: const Text(
+                        'Förnya position',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 5.0), // Add some space between buttons
+
+                  // Second Button
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        saveBasket();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(100, 56),
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blueGrey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          side: const BorderSide(color: Colors.black),
+                        ),
+                      ),
+                      child: const Text(
+                        'Spara korg',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
