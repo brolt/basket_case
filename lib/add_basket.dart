@@ -156,15 +156,19 @@ class AddBasketState extends State<AddBasket> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: SizedBox(
-                    height: 56,
+                    height: 60,
                     child: ListWheelScrollView(
-                      itemExtent: 50,
-                      // Adjust the item extent as needed
+                      physics: const FixedExtentScrollPhysics(),
+                      itemExtent: 60,
                       children: List.generate(
                         18,
                         (index) => Center(
                           child: Text(
                             'Hål ${index + 1}',
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
