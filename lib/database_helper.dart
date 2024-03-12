@@ -23,7 +23,7 @@ class DatabaseHelper {
         CREATE TABLE disc_golf_baskets (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           courseId INTEGER,
-          basketNumber INTEGER,
+          basketNumber INTEGER UNIQUE,
           latitude REAL,
           longitude REAL,
           FOREIGN KEY (courseId) REFERENCES disc_golf_courses (id)
@@ -51,6 +51,20 @@ class DatabaseHelper {
       'latitude': basket.latitude,
       'longitude': basket.longitude,
     });
+
+    return basketId;
+  }
+
+  Future<int> updateBasket(DiscGolfBasket basket) async {
+    int basketId = await database.update(
+        'disc_golf_baskets',
+        {
+          'courseId': basket.courseId,
+          'basketNumber': basket.basketNumber,
+          'latitude': basket.latitude,
+          'longitude': basket.longitude,
+        },
+        where: 'basketId = ?');
 
     return basketId;
   }

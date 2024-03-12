@@ -6,7 +6,7 @@ import 'package:basket_case/model/disc_golf_course.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'add_basket.dart';
+import 'add_edit_basket.dart';
 import 'database_helper.dart';
 import 'location_helper.dart';
 
@@ -91,7 +91,7 @@ class CourseViewState extends State<CourseView> {
       });
 
       // Take the five closest baskets
-      closestBaskets = baskets.take(5).toList();
+      closestBaskets = baskets.take(8).toList();
 
       setState(() {}); // Update the UI with the closest baskets
       // ignore: empty_catches
@@ -136,6 +136,11 @@ class CourseViewState extends State<CourseView> {
                     border: Border.all(width: 1),
                   ),
                   child: ListTile(
+                    onTap: () {
+                      navigateToAddEditView(
+                          context, widget.course, AddEditMode.edit,
+                          basketNumber: basket.basketNumber);
+                    },
                     leading: CircleAvatar(
                       backgroundColor: Colors.white,
                       child: Text(
@@ -157,9 +162,6 @@ class CourseViewState extends State<CourseView> {
                         ),
                       ),
                     ),
-                    onTap: () {
-                      // Handle onTap for the basket
-                    },
                     trailing: const Icon(
                       Icons.flag,
                       color: Colors.white,
@@ -187,20 +189,31 @@ class CourseViewState extends State<CourseView> {
         elevation: 0,
         backgroundColor: Colors.blueGrey,
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddBasket(
-                databaseHelper: widget.databaseHelper,
-                course: widget.course,
-              ),
-            ),
-          );
+          navigateToAddEditView(context, widget.course, AddEditMode.add);
         },
         shape: RoundedRectangleBorder(
             side: const BorderSide(width: 1, color: Colors.black),
             borderRadius: BorderRadius.circular(10)),
         child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  void navigateToAddEditView(
+    BuildContext context,
+    DiscGolfCourse course,
+    AddEditMode mode, {
+    int? basketNumber,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditBasket(
+          databaseHelper: widget.databaseHelper,
+          course: course,
+          mode: AddEditMode.edit,
+          editBasketNumber: basketNumber,
+        ),
       ),
     );
   }
