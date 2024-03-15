@@ -31,7 +31,7 @@ class AddEditBasketState extends State<AddEditBasket> {
   final mapController = MapController();
   Marker basketMarker =
       const Marker(point: LatLng(0, 0), child: Icon(Icons.flag));
-  int selectedHole = 15;
+  int selectedHole = 1;
   Position currentPosition = Position(
     longitude: 0,
     latitude: 0,
@@ -71,58 +71,6 @@ class AddEditBasketState extends State<AddEditBasket> {
         mapController.move(latLng, 19);
       });
     } catch (e) {}
-  }
-
-  void saveBasket() async {
-    // Ensure that the database is initialized
-    if (!widget.databaseHelper.isInitialized()) {
-      return;
-    }
-
-    if (currentPosition.latitude.isNegative) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Error'),
-          content: const Text('Coordinates are strange...'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-
-    // Create a DiscGolfBasket object with the information
-    DiscGolfBasket basket = DiscGolfBasket(
-      courseId: widget.course.id,
-      basketNumber: selectedHole,
-      latitude: currentPosition.latitude,
-      longitude: currentPosition.longitude,
-    );
-
-    // Save the course to the database using your DatabaseHelper
-    // Assuming you have a databaseHelper instance available
-    int basketId = await widget.databaseHelper.insertBasket(basket);
-
-    if (basketId != -1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('The baskets position was saved!'),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Something went wrong!'),
-        ),
-      );
-    }
   }
 
   @override
@@ -312,7 +260,11 @@ class AddEditBasketState extends State<AddEditBasket> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                            saveBasket();
+                            if (widget.mode == AddEditMode.add) {
+                              saveBasket();
+                            } else {
+                              updateBasket();
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             fixedSize: const Size(100, 56),
@@ -341,5 +293,64 @@ class AddEditBasketState extends State<AddEditBasket> {
         ],
       ),
     );
+  }
+
+  void saveBasket() async {
+    if (!widget.databaseHelper.isInitialized()) {
+      return;
+    }
+
+    DiscGolfBasket basket = DiscGolfBasket(
+      courseId: widget.course.id,
+      basketNumber: selectedHole,
+      latitude: currentPosition.latitude,
+      longitude: currentPosition.longitude,
+    );
+
+    int? basketId = await widget.databaseHelper.insertBasket(basket);
+
+    if (basketId != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Korgens position har sparats!'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'Korgen på detta hål har redan en position sparad. Gå tillbaks till banans sida och välj hålet för att redigera positionen!'),
+        ),
+      );
+    }
+  }
+
+  updateBasket() async {
+    if (!widget.databaseHelper.isInitialized()) {
+      return;
+    }
+
+    DiscGolfBasket basket = DiscGolfBasket(
+      courseId: widget.course.id,
+      basketNumber: selectedHole,
+      latitude: currentPosition.latitude,
+      longitude: currentPosition.longitude,
+    );
+
+    int basketId = await widget.databaseHelper.updateBasket(basket);
+
+    if (basketId != -1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Korgens position har uppdaterats!'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Något gick fel när korgen skulle uppdateras'),
+        ),
+      );
+    }
   }
 }

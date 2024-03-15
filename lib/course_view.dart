@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:basket_case/model/disc_golf_course.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'add_edit_basket.dart';
@@ -34,6 +35,8 @@ class CourseViewState extends State<CourseView> {
       headingAccuracy: 0,
       speed: 0,
       speedAccuracy: 0);
+  double? _direction;
+  List<double> lastReadings = List.filled(5, 0.0);
 
   @override
   void initState() {
@@ -41,6 +44,25 @@ class CourseViewState extends State<CourseView> {
     getLocation();
     fetchClosestBaskets();
     startLocationReloadTimer();
+    FlutterCompass.events?.listen((CompassEvent event) {
+      // Check if the heading is null
+      if (event.heading != null) {
+        // Remove the oldest reading
+        lastReadings.removeAt(0);
+
+        // Add the new reading
+        lastReadings.add(event.heading!);
+
+        // Calculate the average of the last N readings
+        double smoothedDirection =
+            lastReadings.reduce((a, b) => a + b) / lastReadings.length;
+
+        // Use this smoothed direction for your arrow direction calculation
+        setState(() {
+          _direction = smoothedDirection;
+        });
+      }
+    });
   }
 
   void startLocationReloadTimer() {
@@ -128,6 +150,7 @@ class CourseViewState extends State<CourseView> {
                   basket.latitude,
                   basket.longitude,
                 );
+                double arrowDirection = calculateArrowDirection(basket);
                 return Container(
                   margin: const EdgeInsets.only(bottom: 10),
                   decoration: BoxDecoration(
@@ -162,9 +185,12 @@ class CourseViewState extends State<CourseView> {
                         ),
                       ),
                     ),
-                    trailing: const Icon(
-                      Icons.flag,
-                      color: Colors.white,
+                    trailing: Transform.rotate(
+                      angle: arrowDirection,
+                      child: const Icon(
+                        Icons.arrow_upward,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 );
@@ -211,10 +237,29 @@ class CourseViewState extends State<CourseView> {
         builder: (context) => AddEditBasket(
           databaseHelper: widget.databaseHelper,
           course: course,
-          mode: AddEditMode.edit,
+          mode: mode,
           editBasketNumber: basketNumber,
         ),
       ),
     );
+  }
+
+  double calculateArrowDirection(DiscGolfBasket basket) {
+    // Calculate the bearing from the current position to the basket's position
+    double bearing = Geolocator.bearingBetween(
+      currentPosition.latitude,
+      currentPosition.longitude,
+      basket.latitude,
+      basket.longitude,
+    );
+
+    // Check if _direction is null before using it
+    double arrowDirection =
+        _direction != null ? bearing - _direction! : bearing;
+
+    // Normalize the arrow direction to the range [0, 360)
+    arrowDirection = (arrowDirection + 360) % 360;
+
+    return arrowDirection;
   }
 }

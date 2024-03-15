@@ -100,7 +100,8 @@ class DiscGolfHomePageState extends State<DiscGolfHomePage> {
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Text('No courses found.');
+                    return const Text(
+                        'Inga banor skapade än! Lägg till en bana genom att trycka på knappen nere i hörnet.');
                   } else {
                     List<DiscGolfCourse> courses = snapshot.data!;
                     return ListView.builder(

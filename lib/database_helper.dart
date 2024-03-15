@@ -10,16 +10,19 @@ class DatabaseHelper {
     final path = await getDatabasesPath();
     final discGolfDbPath = join(path, 'disc_golf.db');
 
-    database =
-        await openDatabase(discGolfDbPath, version: 1, onCreate: (db, version) {
-      db.execute('''
+    database = await openDatabase(discGolfDbPath,
+        version: 2, onCreate: onCreate, onUpgrade: onUpgrade);
+  }
+
+  void onCreate(Database db, int version) async {
+    await db.execute('''
         CREATE TABLE disc_golf_courses (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT
         )
       ''');
 
-      db.execute('''
+    db.execute('''
         CREATE TABLE disc_golf_baskets (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           courseId INTEGER,
@@ -29,7 +32,36 @@ class DatabaseHelper {
           FOREIGN KEY (courseId) REFERENCES disc_golf_courses (id)
         )
       ''');
-    });
+  }
+
+  void onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < newVersion) {
+      await db.execute('''
+      DROP TABLE IF EXISTS disc_golf_baskets
+    ''');
+
+      await db.execute('''
+      DROP TABLE IF EXISTS disc_golf_courses
+    ''');
+
+      await db.execute('''
+          CREATE TABLE disc_golf_courses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT
+          )
+        ''');
+
+      await db.execute('''
+          CREATE TABLE disc_golf_baskets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            courseId INTEGER,
+            basketNumber INTEGER UNIQUE,
+            latitude REAL,
+            longitude REAL,
+            FOREIGN KEY (courseId) REFERENCES disc_golf_courses (id)
+          )
+        ''');
+    }
   }
 
   bool isInitialized() {
@@ -44,27 +76,64 @@ class DatabaseHelper {
     return courseId;
   }
 
-  Future<int> insertBasket(DiscGolfBasket basket) async {
-    int basketId = await database.insert('disc_golf_baskets', {
-      'courseId': basket.courseId,
-      'basketNumber': basket.basketNumber,
-      'latitude': basket.latitude,
-      'longitude': basket.longitude,
-    });
+  Future<int> updateCourse(DiscGolfCourse course) async {
+    int courseId = await database.update(
+        'disc_golf_courses',
+        {
+          'name': course.name,
+        },
+        where: 'id = ?');
+
+    return courseId;
+  }
+
+  Future<int> deleteCourse(DiscGolfCourse course) async {
+    int courseId = await database
+        .delete('disc_golf_courses', where: 'id = ?', whereArgs: [course.id]);
+
+    return courseId;
+  }
+
+  Future<int?> insertBasket(DiscGolfBasket basket) async {
+    int? basketId;
+    try {
+      basketId = await database.insert('disc_golf_baskets', {
+        'courseId': basket.courseId,
+        'basketNumber': basket.basketNumber,
+        'latitude': basket.latitude,
+        'longitude': basket.longitude,
+      });
+    } on DatabaseException catch (e) {
+      if (e.toString().contains('UNIQUE constraint failed')) {
+        // Handle the exception. For example, show an error message to the user.
+        print('A basket with this number already exists.');
+      } else {
+        rethrow;
+      }
+    }
 
     return basketId;
   }
 
   Future<int> updateBasket(DiscGolfBasket basket) async {
     int basketId = await database.update(
-        'disc_golf_baskets',
-        {
-          'courseId': basket.courseId,
-          'basketNumber': basket.basketNumber,
-          'latitude': basket.latitude,
-          'longitude': basket.longitude,
-        },
-        where: 'basketId = ?');
+      'disc_golf_baskets',
+      {
+        'courseId': basket.courseId,
+        'basketNumber': basket.basketNumber,
+        'latitude': basket.latitude,
+        'longitude': basket.longitude,
+      },
+      where: 'basketNumber  = ?',
+      whereArgs: [basket.basketNumber],
+    );
+
+    return basketId;
+  }
+
+  Future<int> deleteBasket(DiscGolfBasket basket) async {
+    int basketId = await database
+        .delete('disc_golf_baskets', where: 'id = ?', whereArgs: [basket.id]);
 
     return basketId;
   }
