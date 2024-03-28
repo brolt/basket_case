@@ -185,13 +185,8 @@ class CourseViewState extends State<CourseView> {
                         ),
                       ),
                     ),
-                    trailing: Transform.rotate(
-                      angle: arrowDirection,
-                      child: const Icon(
-                        Icons.arrow_upward,
-                        color: Colors.white,
-                      ),
-                    ),
+                    trailing:
+                        const Icon(Icons.access_alarm, color: Colors.white),
                   ),
                 );
               }).toList(),
